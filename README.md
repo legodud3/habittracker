@@ -19,4 +19,25 @@ Features:
 
 Codebase Details:
 - The project is structured with separate HTML, CSS, and JavaScript files.
-- "index.html": The main markup file that structures the web app, including dropdowns for month and year, and▍
+- "index.html": The main markup file that structures the web app, including dropdowns for month and year, and the calendar grid where user interactions happen.
+- "styles.css": The stylesheet that provides styling to the web app, making it visually appealing and user-friendly.
+- "script.js": Contains the bulk of the logic. It manages date selections, dynamic calendar rendering, user interactions (clicks), and Local Storage for data persistence.
+
+Repository Structure:
+- index.html
+- styles.css
+- script.js
+- README.txt (this file)
+
+Getting Started:
+To run the habit tracker:
+1. Clone the codebase from the repository or download the files to your local machine.
+2. Open the 'index.html' file in a web browser to use the habit tracker.
+
+Future Extensions _(Optional)_: 
+- Implement Firebase or another backend solution to sync data across devices.
+- Set up user authentication to allow multiple unique users to track their habits.
+
+Note: The app currently uses Local Storage, which means the data is saved locally on the user's device. To access the data across devices, a backend setup is recommended. Follow the instructions in the "script.js" file comments to use Firebase as a potential backend solution.
+
+For detailed instructions on setting up Firebase and migrating from Local Storage, refer to the Firebase documentation: https://firebase.google.com/docs/web/setup
