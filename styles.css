@@ -1,19 +1,25 @@
 /* CSS code for calendar view */
 body {
     font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 #calendar {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(7, 1fr); /* 7 columns for 7 days of the week */
     text-align: center;
     grid-gap: 4px;
+    padding: 10px;
 }
 #calendar div {
     border: 1px solid #ddd;
     padding: 10px;
+    min-height: 100px; /* or any other suitable height */
 }
 .day-name {
     font-weight: bold;
+    background-color: #f0f0f0;
 }
 .date-cell {
     position: relative;
@@ -26,8 +32,8 @@ body {
     font-size: 14px;
 }
 .success {
-    color: green;
+    color: green; /* Explicit 'success' color */
 }
 .fail {
-    color: red;
+    color: red; /* Explicit 'fail' color */
 }
