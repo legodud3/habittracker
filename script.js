@@ -37,7 +37,31 @@ window.onload = function() {
 
     generateDayNames();
     generateCalendar(currentMonth, currentYear);
+    updateBreaksStats();
 };
+
+function updateBreaksStats() {
+    const year = parseInt(document.getElementById('year').value, 10);
+    const month = parseInt(document.getElementById('month').value, 10);
+    
+    // Calculate monthly and yearly breaks
+    let monthlyBreaks = 0;
+    let yearlyBreaks = 0;
+    Object.keys(habitTrack).forEach(dateKey => {
+        const [y, m] = dateKey.split('-').map(d => parseInt(d, 10));
+        if (habitTrack[dateKey] === 'fail') {
+            if (y === year) {
+                yearlyBreaks += 1;
+                if (m === month + 1) { // month in dateKey is 1-indexed
+                    monthlyBreaks += 1;
+                }
+            }
+        }
+    });
+    
+    document.getElementById('monthly-breaks').textContent = `Monthly rule breaks: ${monthlyBreaks}`;
+    document.getElementById('yearly-breaks').textContent = `Yearly rule breaks: ${yearlyBreaks}`;
+}
 
 function generateDayNames() {
     const calendar = document.getElementById('calendar');
@@ -55,11 +79,9 @@ function generateCalendar(month, year) {
     let daysInMonth = 32 - new Date(year, month, 32).getDate();
 
     let calendar = document.getElementById('calendar');
-    // Clear existing calendar cells but keep the day names
-    calendar.querySelectorAll('.date-cell').forEach(cell => cell.remove());
-
-    generateDayNames(); // Regenerate day names for the new month
-
+    calendar.innerHTML = "";  // Clear existing calendar
+    generateDayNames();  // Create the header rows
+    
     for (let i = 0; i < firstDay; i++) {
         let cell = document.createElement('div');
         calendar.appendChild(cell);
@@ -88,13 +110,14 @@ function generateCalendar(month, year) {
         cell.addEventListener('click', onDateClick);
         calendar.appendChild(cell);
     }
+    updateBreaksStats();
 }
 
 function onDateClick(e) {
-    const cell = e.target.classList.contains('date-cell') ? e.target : e.target.closest('.date-cell');
-    const day = cell.getAttribute('data-day').padStart(2, '0');
+    const cell = e.target.closest('.date-cell');
     const year = document.getElementById('year').value;
     const month = String(parseInt(document.getElementById('month').value) + 1).padStart(2, '0');
+    const day = cell.getAttribute('data-day').padStart(2, '0');
     const dateKey = `${year}-${month}-${day}`;
 
     let statusSpan = cell.querySelector('.status');
@@ -114,4 +137,6 @@ function onDateClick(e) {
     }
 
     localStorage.setItem(habitTrackStorageKey, JSON.stringify(habitTrack));
+
+    updateBreaksStats();  // Update the breaks stats right after the click
 }
