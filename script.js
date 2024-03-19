@@ -8,10 +8,10 @@ const daysInWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 // Function to populate month and year options
 function populateOptions() {
   for (let i = 2020; i <= new Date().getFullYear(); i++) {
-    yearSelect.innerHTML += `<option value="<span class="math-inline">\{i\}"\></span>{i}</option>`;
+    yearSelect.innerHTML += `<option value="${i}">${i}</option>`;
   }
   months.forEach(month => {
-    monthSelect.innerHTML += `<option value="<span class="math-inline">\{month\}"\></span>{month}</option>`;
+    monthSelect.innerHTML += `<option value="${month}">${month}</option>`;
   });
 }
 
@@ -37,4 +37,6 @@ function generateCalendar(selectedMonth, selectedYear) {
     calendarContainer.appendChild(emptyBox);
   }
 
-  const daysInMonth = new Date(selectedYear, months.indexOf(
+  // COMPLETE THIS LINE: 
+  const daysInMonth = new Date(selectedYear, months.indexOf(selectedMonth) + 1, 0).getDate();  
+} 
