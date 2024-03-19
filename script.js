@@ -116,20 +116,22 @@ function generateCalendar(month, year) {
 }
 
 function onDateClick(e) {
-    const cell = e.target.tagName.toLowerCase() === 'div' ? e.target : e.target.parentNode;
-    const year = document.getElementById('year').value;
-    const month = document.getElementById('month').value;
-    const day = cell.getAttribute('data-day');
-    const dateKey = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-
-    if (!habitTrack[dateKey]) {
-        habitTrack[dateKey] = 'success';
-    } else if (habitTrack[dateKey] === 'success') {
-        habitTrack[dateKey] = 'fail';
-    } else {
-        delete habitTrack[dateKey];
-    }
-
-    localStorage.setItem(habitTrackStorageKey, JSON.stringify(habitTrack));
-    generateCalendar(month, year);
+  const cell = e.target.classList.contains('date-cell') ? e.target : e.target.closest('.date-cell');
+  const day = cell.getAttribute('data-day');
+  const year = document.getElementById('year').value;
+  const month = String(parseInt(document.getElementById('month').value)+1).padStart(2, '0'); // Ensure month is 2 digits
+  const dateKey = `${year}-${month}-${day.padStart(2, '0')}`;
+  
+  if (!habitTrack[dateKey]) {
+      habitTrack[dateKey] = 'success';
+      cell.innerHTML = `<span class="status success">✓</span>${day}`;
+  } else if (habitTrack[dateKey] === 'success') {
+      habitTrack[dateKey] = 'fail';
+      cell.innerHTML = `<span class="status fail">fail</span>${day}`;
+  } else {
+      delete habitTrack[dateKey];
+      cell.innerHTML = day;
+  }
+  
+  localStorage.setItem(habitTrackStorageKey, JSON.stringify(habitTrack));
 }
