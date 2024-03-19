@@ -6,11 +6,33 @@ const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const habitTrackStorageKey = "habitTrack";
 let habitTrack = JSON.parse(localStorage.getItem(habitTrackStorageKey)) || {};
 
+function updateBreaksStats() {
+    const year = parseInt(document.getElementById('year').value, 10);
+    const month = parseInt(document.getElementById('month').value, 10);
+    let monthlyBreaks = 0;
+    let yearlyBreaks = 0;
+
+    Object.keys(habitTrack).forEach(date => {
+        const [trackYear, trackMonth] = date.split('-').map(Number);
+        if (habitTrack[date] === 'fail') {
+            if (trackYear === year) {
+                yearlyBreaks++;
+                if (trackMonth === month) {
+                    monthlyBreaks++;
+                }
+            }
+        }
+    });
+
+    document.getElementById('monthly-breaks').textContent = `Monthly rule breaks: ${monthlyBreaks}`;
+    document.getElementById('yearly-breaks').textContent = `Yearly rule breaks: ${yearlyBreaks}`;
+}
+
 window.onload = function() {
     let date = new Date();
     let currentMonth = date.getMonth();
     let currentYear = date.getFullYear();
-    
+
     monthNames.forEach((month, index) => {
         let option = document.createElement('option');
         option.value = index;
@@ -37,10 +59,12 @@ window.onload = function() {
     
     generateDayNames();
     generateCalendar(currentMonth, currentYear);
+    updateBreaksStats(); // Initial update for stats
 };
 
 function generateDayNames() {
     const calendar = document.getElementById('calendar');
+    calendar.innerHTML = ''; // Clear any existing day names
     dayNames.forEach(dayName => {
         const dayCell = document.createElement('div');
         dayCell.textContent = dayName;
@@ -54,9 +78,10 @@ function generateCalendar(month, year) {
     let daysInMonth = 32 - new Date(year, month, 32).getDate();
 
     let calendar = document.getElementById('calendar');
-    calendar.innerHTML = "";
-    
-    generateDayNames();
+    // Clear existing calendar cells, but keep day names
+    calendar.querySelectorAll('.date-cell').forEach(cell => cell.remove());
+
+    generateDayNames(); // Regenerate day names for the new month
 
     for (let i = 0; i < firstDay; i++) {
         let cell = document.createElement('div');
@@ -86,6 +111,8 @@ function generateCalendar(month, year) {
         
         calendar.appendChild(cell);
     }
+
+    updateBreaksStats(); // Update statistics whenever the calendar is generated
 }
 
 function onDateClick(e) {
@@ -93,8 +120,8 @@ function onDateClick(e) {
     const year = document.getElementById('year').value;
     const month = document.getElementById('month').value;
     const day = cell.getAttribute('data-day');
-    const dateKey = `${year}-${month}-${day}`;
-    
+    const dateKey = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+
     if (!habitTrack[dateKey]) {
         habitTrack[dateKey] = 'success';
     } else if (habitTrack[dateKey] === 'success') {
@@ -102,7 +129,7 @@ function onDateClick(e) {
     } else {
         delete habitTrack[dateKey];
     }
-    
+
     localStorage.setItem(habitTrackStorageKey, JSON.stringify(habitTrack));
     generateCalendar(month, year);
 }
