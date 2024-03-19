@@ -8,22 +8,25 @@ body {
 #calendar {
     display: grid;
     grid-template-columns: repeat(7, 1fr); /* 7 columns for 7 days of the week */
-    text-align: center;
     grid-gap: 4px;
     padding: 10px;
 }
-#calendar div {
-    border: 1px solid #ddd;
-    padding: 10px;
-    min-height: 100px; /* or any other suitable height */
-}
-.day-name {
+#calendar .day-name {
     font-weight: bold;
     background-color: #f0f0f0;
+    min-height: 30px; /* Set a minimum height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.date-cell {
+#calendar .date-cell {
+    border: 1px solid #ddd;
+    min-height: 100px; /* or any other suitable height */
     position: relative;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .status {
     position: absolute;
