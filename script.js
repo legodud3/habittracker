@@ -6,28 +6,6 @@ const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const habitTrackStorageKey = "habitTrack";
 let habitTrack = JSON.parse(localStorage.getItem(habitTrackStorageKey)) || {};
 
-function updateBreaksStats() {
-    const year = parseInt(document.getElementById('year').value, 10);
-    const month = parseInt(document.getElementById('month').value, 10);
-    let monthlyBreaks = 0;
-    let yearlyBreaks = 0;
-
-    Object.keys(habitTrack).forEach(date => {
-        const [trackYear, trackMonth] = date.split('-').map(Number);
-        if (habitTrack[date] === 'fail') {
-            if (trackYear === year) {
-                yearlyBreaks++;
-                if (trackMonth === month) {
-                    monthlyBreaks++;
-                }
-            }
-        }
-    });
-
-    document.getElementById('monthly-breaks').textContent = `Monthly rule breaks: ${monthlyBreaks}`;
-    document.getElementById('yearly-breaks').textContent = `Yearly rule breaks: ${yearlyBreaks}`;
-}
-
 window.onload = function() {
     let date = new Date();
     let currentMonth = date.getMonth();
@@ -50,21 +28,20 @@ window.onload = function() {
     }
 
     document.getElementById('month').onchange = function() {
-        generateCalendar(this.value, document.getElementById('year').value);
+        generateCalendar(parseInt(this.value), parseInt(document.getElementById('year').value));
     };
 
     document.getElementById('year').onchange = function() {
-        generateCalendar(document.getElementById('month').value, this.value);
+        generateCalendar(parseInt(document.getElementById('month').value), parseInt(this.value));
     };
-    
+
     generateDayNames();
     generateCalendar(currentMonth, currentYear);
-    updateBreaksStats(); // Initial update for stats
 };
 
 function generateDayNames() {
     const calendar = document.getElementById('calendar');
-    calendar.innerHTML = ''; // Clear any existing day names
+    calendar.innerHTML = '';
     dayNames.forEach(dayName => {
         const dayCell = document.createElement('div');
         dayCell.textContent = dayName;
@@ -78,7 +55,7 @@ function generateCalendar(month, year) {
     let daysInMonth = 32 - new Date(year, month, 32).getDate();
 
     let calendar = document.getElementById('calendar');
-    // Clear existing calendar cells, but keep day names
+    // Clear existing calendar cells but keep the day names
     calendar.querySelectorAll('.date-cell').forEach(cell => cell.remove());
 
     generateDayNames(); // Regenerate day names for the new month
@@ -90,48 +67,51 @@ function generateCalendar(month, year) {
 
     for (let i = 1; i <= daysInMonth; i++) {
         const cell = document.createElement('div');
-        const dateKey = `${year}-${month}-${i}`;
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
         
         cell.className = 'date-cell';
         cell.setAttribute('data-day', i);
         cell.textContent = i;
-        cell.addEventListener('click', onDateClick);
+        
+        const statusSpan = document.createElement('span');
+        statusSpan.className = 'status';
         
         if (habitTrack[dateKey] === 'success') {
-            const tick = document.createElement('span');
-            tick.className = 'status success';
-            tick.textContent = '✓';
-            cell.appendChild(tick);
+            statusSpan.textContent = '✓';
+            statusSpan.classList.add('success');
         } else if (habitTrack[dateKey] === 'fail') {
-            const fail = document.createElement('span');
-            fail.className = 'status fail';
-            fail.textContent = 'fail';
-            cell.appendChild(fail);
+            statusSpan.textContent = 'fail';
+            statusSpan.classList.add('fail');
         }
         
+        cell.appendChild(statusSpan);
+        cell.addEventListener('click', onDateClick);
         calendar.appendChild(cell);
     }
-
-    updateBreaksStats(); // Update statistics whenever the calendar is generated
 }
 
 function onDateClick(e) {
-  const cell = e.target.classList.contains('date-cell') ? e.target : e.target.closest('.date-cell');
-  const day = cell.getAttribute('data-day');
-  const year = document.getElementById('year').value;
-  const month = String(parseInt(document.getElementById('month').value)+1).padStart(2, '0'); // Ensure month is 2 digits
-  const dateKey = `${year}-${month}-${day.padStart(2, '0')}`;
-  
-  if (!habitTrack[dateKey]) {
-      habitTrack[dateKey] = 'success';
-      cell.innerHTML = `<span class="status success">✓</span>${day}`;
-  } else if (habitTrack[dateKey] === 'success') {
-      habitTrack[dateKey] = 'fail';
-      cell.innerHTML = `<span class="status fail">fail</span>${day}`;
-  } else {
-      delete habitTrack[dateKey];
-      cell.innerHTML = day;
-  }
-  
-  localStorage.setItem(habitTrackStorageKey, JSON.stringify(habitTrack));
+    const cell = e.target.classList.contains('date-cell') ? e.target : e.target.closest('.date-cell');
+    const day = cell.getAttribute('data-day').padStart(2, '0');
+    const year = document.getElementById('year').value;
+    const month = String(parseInt(document.getElementById('month').value) + 1).padStart(2, '0');
+    const dateKey = `${year}-${month}-${day}`;
+
+    let statusSpan = cell.querySelector('.status');
+    
+    if (!habitTrack[dateKey]) {
+        habitTrack[dateKey] = 'success';
+        statusSpan.textContent = '✓';
+        statusSpan.className = 'status success';
+    } else if (habitTrack[dateKey] === 'success') {
+        habitTrack[dateKey] = 'fail';
+        statusSpan.textContent = 'fail';
+        statusSpan.className = 'status fail';
+    } else {
+        delete habitTrack[dateKey];
+        statusSpan.textContent = '';
+        statusSpan.className = 'status';
+    }
+
+    localStorage.setItem(habitTrackStorageKey, JSON.stringify(habitTrack));
 }
