@@ -6,6 +6,74 @@ const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const habitTrackStorageKey = "habitTrack";
 let habitTrack = JSON.parse(localStorage.getItem(habitTrackStorageKey)) || {};
 
+// New user authentication and goal setting code
+document.addEventListener('DOMContentLoaded', function() {
+  const auth = firebase.auth();
+
+  // Check for user session
+  auth.onAuthStateChanged((user) => {
+      if (user) {
+          // User is signed in
+          showUserUI(user);
+      }
+      // If no user is signed in, the default UI remains as is
+  });
+
+  // Bind sign-in button event
+  document.getElementById('sign-in-btn').addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      auth.signInWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+              // Signed in successfully
+              showUserUI(userCredential.user);
+          })
+          .catch((error) => {
+              alert('Sign in failed: ' + error.message);
+          });
+  });
+
+  // Bind sign-out button event
+  document.getElementById('sign-out-btn').addEventListener('click', () => {
+      auth.signOut(); // Will trigger the onAuthStateChanged event
+  });
+
+  // Bind goal submit button event
+  document.getElementById('submit-goal-btn').addEventListener('click', () => {
+      const user = auth.currentUser;
+      if (user) {
+          const goal = document.getElementById('goal').value;
+          const startDate = document.getElementById('start-date').value;
+          const endDate = document.getElementById('end-date').value;
+          const allowedBreaks = parseInt(document.getElementById('allowed-breaks').value, 10);
+          // Save goal in Firebase under user's node
+          firebase.database().ref('users/' + user.uid + '/goal').set({
+              goal, startDate, endDate, allowedBreaks
+          }).then(() => alert('Goal saved!'));
+      }
+  });
+
+  function showUserUI(user) {
+      document.getElementById('auth-container').style.display = 'none';
+      document.getElementById('sign-out-btn').style.display = 'block';
+      document.getElementById('goal-setting').style.display = 'block';
+      // Load the habit tracker for the signed-in user
+      const habitTracker = generateCalendar(); 
+      document.getElementById('habit-tracker').appendChild(habitTracker);
+      // Load user's saved goal, if any
+      firebase.database().ref('users/' + user.uid + '/goal').once('value')
+          .then((snapshot) => {
+              if (snapshot.exists()) {
+                  const goalData = snapshot.val();
+                  document.getElementById('goal').value = goalData.goal || '';
+                  document.getElementById('start-date').value = goalData.startDate || '';
+                  document.getElementById('end-date').value = goalData.endDate || '';
+                  document.getElementById('allowed-breaks').value = goalData.allowedBreaks || 0;
+              }
+          });
+  }
+});
+
 window.onload = function() {
     let date = new Date();
     let currentMonth = date.getMonth();
