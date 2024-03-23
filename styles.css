@@ -64,3 +64,33 @@ h1 {
     text-align: center;
     padding-top: 10px;
 }
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 10px;
+}
+
+#auth-container,
+#goal-setting {
+    margin-bottom: 20px;
+    padding: 10px;
+}
+
+input[type=email],
+input[type=password],  
+input[type=text],        
+input[type=date],       
+input[type=number],      
+button {
+    margin: 5px;
+    padding: 8px;
+}
+
+button {
+    cursor: pointer;
+}
+
+#sign-out-btn {
+    display: none; /* Hidden by default, shown after sign-in */
+}
